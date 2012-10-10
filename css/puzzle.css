@@ -1,0 +1,28 @@
+* {
+	box-sizing: border-box;
+}
+#puzzle {
+	border: 1px solid black;
+	display: block;
+	width: 310px;
+	height: 310px;
+}
+
+.tile {
+	display: block;
+	width: 75px;
+	height: 75px;
+	border: 1px solid gray;
+	float: left;
+	margin: 1px;
+	line-height: 75px;
+	text-align: center;
+}
+
+.tile {
+	background-color: #87ceeb;
+}
+
+.emptyTile {
+	background-color: transparent;
+}
