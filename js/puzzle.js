@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function(){
 	var puzzle = new Puzzle();
+
 	var initButton = document.querySelector('#initPuzzle');
 	initButton.addEventListener('click', function(){
 		puzzle.init();
@@ -24,7 +25,7 @@ Puzzle.prototype.config = {
 };
 
 Puzzle.prototype._answer = [];
-//Puzzle.prototype._position = [];
+Puzzle.prototype._position = [];
 
 Puzzle.prototype._board = [];
 
@@ -40,10 +41,14 @@ Puzzle.prototype._createTile = function(position){
 	return tile;
 };
 
-Puzzle.prototype._setTilePosition = function(tile, x, y){
-	tile.style.left = (x * this.config.tileSize + this.config.margin) + 'px';
-	tile.style.right = (y * this.config.tileSize + this.config.margin) + 'px';
-	return tile;
+Puzzle.prototype._getPosition = function(x, y){
+	return {
+		x: x,
+		y: y,
+		left: (x * this.config.tileSize + this.config.margin * (x + 1)),
+		top: (y * this.config.tileSize + this.config.margin * (y + 1))
+
+	}
 };
 
 Puzzle.prototype._onTileClick = function(e){
@@ -59,7 +64,10 @@ Puzzle.prototype.init = function(){
 		this._board[x] = [];
 		for (var y = 0; y < this.config.tileCount; y++) {
 			var tile = this._createTile((x * this.config.tileCount + y + 1));
-			tile = this._setTilePosition(tile, x, y);
+			var positionObj = this._getPosition(x, y);
+			tile.style.left = positionObj.left + 'px';
+			tile.style.top = positionObj.top + 'px';
+			this._position.push(positionObj);
 			this._board[x][y] = tile;
 			this._boardElement.appendChild(tile);
 		}
@@ -78,7 +86,8 @@ Puzzle.prototype.randomize = function(){
 		for (var y = 0, lenY = this.config.tileCount; y < lenY; y++) {
 			var curPos = this._getPositionFromCount(ary[tileCount]);
 			tempAry[x][y] = this._board[curPos.x][curPos.y];
-			console.log('count', tileCount, 'x:', x, 'y:', y, 'curPos.x:', curPos.x, 'curPos.y:', curPos.y, 'item:', tempAry[x][y], 'boardItem:', this._board[curPos.x][curPos.y]);
+			tempAry[x][y].style.left = this._position[tileCount].left + 'px';
+			tempAry[x][y].style.top = this._position[tileCount].top + 'px';
 			this._boardElement.appendChild(tempAry[x][y]);
 			tileCount++;
 		}
@@ -104,7 +113,7 @@ Puzzle.prototype._getPositionFromCount = function(count){
 
 Puzzle.prototype._getShuffledArray = function(ary){
 	var len = ary.length,
-		tempAry = ary.concat();
+		tempAry = ary.concat(),
 		result = [];
 	while(len) {
 		result.push(tempAry.splice(Math.floor(Math.random() * len--), 1)[0]);
