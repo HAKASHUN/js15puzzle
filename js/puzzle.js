@@ -41,10 +41,10 @@ Puzzle.prototype._createTile = function(position){
 	return tile;
 };
 
-Puzzle.prototype._getPosition = function(x, y){
+Puzzle.prototype._getPosition = function(y, x){
 	return {
-		x: x,
 		y: y,
+		x: x,
 		left: (x * this.config.tileSize + this.config.margin * (x + 1)),
 		top: (y * this.config.tileSize + this.config.margin * (y + 1))
 
@@ -59,16 +59,18 @@ Puzzle.prototype.init = function(){
 	this.config.totalTileCount = Math.pow(this.config.tileCount, 2);
 	this._boardElement = document.querySelector(this.config.boardSelector);
 	this._boardElement.innerHTML = '';
+	this._position = [];
+	this._board = [];
 	//盤面の作成
-	for (var x = 0; x < this.config.tileCount; x++) {
-		this._board[x] = [];
-		for (var y = 0; y < this.config.tileCount; y++) {
-			var tile = this._createTile((x * this.config.tileCount + y + 1));
-			var positionObj = this._getPosition(x, y);
+	for (var y = 0; y < this.config.tileCount; y++) {
+		this._board[y] = [];
+		for (var x = 0; x < this.config.tileCount; x++) {
+			var tile = this._createTile((y * this.config.tileCount + x + 1));
+			var positionObj = this._getPosition(y, x);
 			tile.style.left = positionObj.left + 'px';
 			tile.style.top = positionObj.top + 'px';
 			this._position.push(positionObj);
-			this._board[x][y] = tile;
+			this._board[y][x] = tile;
 			this._boardElement.appendChild(tile);
 		}
 	}
@@ -103,14 +105,6 @@ Puzzle.prototype._getSerialArray = function(count){
 	return resultAry;
 };
 
-Puzzle.prototype._getPositionFromCount = function(count){
-	var result = {};
-	var tempCount = count + 1;
-	result.x = tempCount % this.config.tileCount === 0 ? this.config.tileCount - 1 : tempCount % this.config.tileCount - 1;
-	result.y = Math.ceil(tempCount / this.config.tileCount) - 1;
-	return result;
-};
-
 Puzzle.prototype._getShuffledArray = function(ary){
 	var len = ary.length,
 		tempAry = ary.concat(),
@@ -120,3 +114,17 @@ Puzzle.prototype._getShuffledArray = function(ary){
 	}
 	return result;
 };
+
+Puzzle.prototype._getPositionFromCount = function(count){
+	var result = {};
+	var tempCount = count + 1;
+	result.x = tempCount % this.config.tileCount === 0 ? this.config.tileCount - 1 : tempCount % this.config.tileCount - 1;
+	result.y = Math.ceil(tempCount / this.config.tileCount) - 1;
+	return result;
+};
+
+Puzzle.prototype._getCountFromPosition = function(position){
+	//position = { x: int, y: int }
+	return this.config.tileCount * position.y + (position.x + 1);
+}
+
