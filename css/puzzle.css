@@ -27,6 +27,12 @@
 	background-color: #87ceeb;
 }
 
-.emptyTile {
+.tile.empty {
 	background-color: transparent;
+}
+
+
+
+.emptyTile {
+
 }
