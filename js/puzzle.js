@@ -30,14 +30,19 @@ Puzzle.prototype._position = [];
 Puzzle.prototype._board = [];
 
 Puzzle.prototype._createTile = function(count){
-	var tile = document.createElement('div');
+	var that = this,
+		tile = document.createElement('div');
+
 	tile.classList.add('tile');
 	tile.setAttribute('data-tile-count', count);
 	if (count === this.config.totalTileCount) {
 		tile.classList.add('empty');
 	} else {
 		tile.appendChild(document.createTextNode(count));
-		tile.addEventListener('click', this._onTileClick);
+		tile.addEventListener('click', function(e){
+			e.preventDefault();
+			that._onTileClick(this);
+		});
 	}
 	return tile;
 };
@@ -59,8 +64,35 @@ Puzzle.prototype._getAbsolutePosition = function(x, y){
 	}
 };
 
-Puzzle.prototype._onTileClick = function(e){
-	e.preventDefault();
+Puzzle.prototype._onTileClick = function(tileEl){
+	var that = this,
+		currentPosition = +tileEl.getAttribute('data-current-index');
+
+	//現在の位置から上下左右に空タイルがあるか確認、あったらリプレース
+	if ((currentPosition + 1) <= that.config.totalTileCount && that._isEmptyTile(currentPosition + 1)) {
+		that._swapTile(currentPosition, currentPosition + 1);
+		return false;
+	}
+
+	if ((currentPosition - 1) > 0  && that._isEmptyTile(currentPosition - 1)) {
+
+		that._swapTile(currentPosition, currentPosition - 1);
+		return false;
+	}
+
+	if ((currentPosition + that.config.tileCount) <= that.config.totalTileCount
+		&& that._isEmptyTile(currentPosition + that.config.tileCount)) {
+
+		that._swapTile(currentPosition, currentPosition + that.config.tileCount);
+		return false;
+	}
+
+	if ((currentPosition + that.config.tileCount) > 0
+		&& that._isEmptyTile(currentPosition - that.config.tileCount)) {
+
+		that._swapTile(currentPosition, currentPosition - that.config.tileCount);
+		return false;
+	}
 };
 
 /**
@@ -76,12 +108,12 @@ Puzzle.prototype.init = function(){
 	//盤面の作成
 	for (var i = 0; i < this.config.totalTileCount; i++) {
 		var tile = this._createTile(i + 1),
-			curPos = this._getPositionFromCount(i),
+			curPos = this._getPositionFromIndex(i),
 			positionObj = this._getAbsolutePosition(curPos.x, curPos.y);
 
 		tile.style.left = positionObj.left + 'px';
 		tile.style.top = positionObj.top + 'px';
-		tile.setAttribute('data-current-count', (i + 1));
+		tile.setAttribute('data-current-index', (i + 1));
 		this._position.push(positionObj);
 		this._board[i] = tile;
 		this._boardElement.appendChild(tile);
@@ -103,9 +135,10 @@ Puzzle.prototype.randomize = function(){
 		tempAry[i] = this._board[ary[i]];
 		tempAry[i].style.left = this._position[i].left + 'px';
 		tempAry[i].style.top = this._position[i].top + 'px';
-		tempAry[i].setAttribute('data-current-count', (i + 1));
+		tempAry[i].setAttribute('data-current-index', (i + 1));
 		this._boardElement.appendChild(tempAry[i]);
 	}
+	this._board = tempAry;
 	return ary;
 };
 
@@ -142,13 +175,13 @@ Puzzle.prototype._getShuffledArray = function(ary){
 
 /**
  *
- * @param count
+ * @param index
  * @return {Object}
  * @private
  */
-Puzzle.prototype._getPositionFromCount = function(count){
+Puzzle.prototype._getPositionFromIndex = function(index){
 	var result = {};
-	var tempCount = count + 1;
+	var tempCount = index + 1;
 	result.x = tempCount % this.config.tileCount === 0 ? this.config.tileCount - 1 : tempCount % this.config.tileCount - 1;
 	result.y = Math.ceil(tempCount / this.config.tileCount) - 1;
 	return result;
@@ -160,8 +193,30 @@ Puzzle.prototype._getPositionFromCount = function(count){
  * @return {*}
  * @private
  */
-Puzzle.prototype._getCountFromPosition = function(position){
+Puzzle.prototype._getIndexFromPosition = function(position){
 	//position = { x: int, y: int }
 	return this.config.tileCount * position.y + (position.x + 1);
 }
 
+Puzzle.prototype._isEmptyTile = function(index){
+	var tile = this._board[index - 1];
+	return tile.classList.contains('empty');
+};
+
+Puzzle.prototype._swapTile = function(indexA, indexB){
+	var tempIndexA = indexA - 1,
+		tempIndexB = indexB - 1,
+		tempValue = this._board[tempIndexA],
+		positionA = this._position[tempIndexA],
+		positionB = this._position[tempIndexB];
+
+	this._board[tempIndexA] = this._board[tempIndexB];
+	this._board[tempIndexB] = tempValue;
+	this._board[tempIndexA].style.top = positionA.top + 'px';
+	this._board[tempIndexA].style.left = positionA.left + 'px';
+	this._board[tempIndexB].style.top = positionB.top + 'px';
+	this._board[tempIndexB].style.left = positionB.left + 'px';
+	this._board[tempIndexA].setAttribute('data-current-index', indexA);
+	this._board[tempIndexB].setAttribute('data-current-index', indexB);
+	console.log('swap', indexA, indexB, this._board);
+};
