@@ -14,4 +14,17 @@ Macで作業をする際に、おすすめのエディタです。
 - [Fraise](http://www.macupdate.com/app/mac/33751/fraise);
 - [TextWrangler](http://www.macupdate.com/app/mac/11009/textwrangler)
 
+## リファレンスサイト
 
+- [DocHub](http://dochub.io/)
+    - 英語ですが、今回使用する言語のリファレンスが1つにまとまっています。
+- [Mozilla Developer Network](https://developer.mozilla.org/ja/docs)
+    - 一部英語になるかもしれません。今回使用言語はこちらから探せます。
+- [クイックリファレンス](http://www.htmq.com/)
+    - 日本語
+- [jQuery API](http://api.jquery.com/)
+    - 英語
+- [js STUDIO](http://js.studio-kingdom.com/jquery)
+    - 日本語。本家とカテゴリ分けが違うが、最新のバージョンの日本語版。
+- [Qrefy](http://s3pw.com/qrefy/)
+    - 日本語。バージョンは1つ前のものになるので、注意
