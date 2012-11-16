@@ -18,7 +18,7 @@ Macで作業をする際に、おすすめのエディタです。
 
 > 普通に使えますが、タブエディタではないです。
 
-- [Fraise](http://www.macupdate.com/app/mac/33751/fraise);
+- [Fraise](http://www.macupdate.com/app/mac/33751/fraise)
 
 > タブも補完もあります。
 
