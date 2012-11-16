@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function(){
 	var randomButton = document.querySelector('#randomizePuzzle');
 	randomButton.addEventListener('click', function(){
 		puzzle.randomize();
-	})
+	});
 
 });
 
@@ -61,7 +61,7 @@ Puzzle.prototype._getAbsolutePosition = function(x, y){
 		left: (x * this.config.tileSize + this.config.margin * (x + 1)),
 		top: (y * this.config.tileSize + this.config.margin * (y + 1))
 
-	}
+	};
 };
 
 Puzzle.prototype._onTileClick = function(tileEl){
@@ -196,7 +196,7 @@ Puzzle.prototype._getPositionFromIndex = function(index){
 Puzzle.prototype._getIndexFromPosition = function(position){
 	//position = { x: int, y: int }
 	return this.config.tileCount * position.y + (position.x + 1);
-}
+};
 
 Puzzle.prototype._isEmptyTile = function(index){
 	var tile = this._board[index - 1];
