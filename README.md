@@ -56,3 +56,8 @@ Macで作業をする際に、おすすめのエディタです。
 - [Qrefy](http://s3pw.com/qrefy/)
 
 > 日本語。バージョンは1つ前のものになるので、注意
+
+## jQuery使用の場合
+
+[こちら](http://code.jquery.com/jquery-1.8.3.min.js)より最新版をダウンロードしてください。
+
