@@ -11,18 +11,34 @@ class Puzzle
   _position: []
   _board: []
   _createTile: (count) ->
-    $tile = $('</div>')
+    $tile = $('<div/>')
 
     $tile.addClass('tile').data('tile-count', count)
 
     if count is @config.totalTileCount
       $tile.addClass 'empty'
     else
-      $tile.text(count).click (e) =>
+      $tile.text(count)
+      $tile.click (e) =>
         e.preventDefault()
-        @_onTileClick(@)
+        @_onTileClick($tile)
 
-    return tile
+    return $tile
+  ###*
+  * タイルのx, yから実際の座標(px)を取得
+  * @param x
+  * @param y
+  * @return {Object}
+  * @private
+  ###
+  _getAbsolutePosition: (x, y) ->
+    tileSize = @config.tileSize
+    margin = @config.margin
+
+    x: x
+    y: y
+    left: x * tileSize + margin * (x + 1)
+    top: y * tileSize + margin * (y + 1)
   ###*
   * タイルのx, yから実際の座標(px)を取得
   * @param x
@@ -31,26 +47,24 @@ class Puzzle
   * @private
   ###
   _onTileClick: (tileEl) =>
-    currentPosition = + $(tileEl).data('current-index')
+    currentPosition = $(tileEl).data('current-index')
     totalTileCount = @config.totalTileCount
     tileCount = @config.tileCount
-    isEmptyTile = @_isEmptyTile
-    swapTile = @_swapTile
 
-    if (currentPosition + 1) <= totalTileCount and isEmptyTile(currentPosition + 1)
-      swapTile currentPosition, currentPosition + 1
+    if (currentPosition + 1) <= totalTileCount and @_isEmptyTile(currentPosition + 1)
+      @_swapTile currentPosition, currentPosition + 1
       return false
 
-    if currentPosition - 1 > 0 and isEmptyTile(currentPosition - 1)
-      swapTile currentPosition, currentPosition - 1
+    if currentPosition - 1 > 0 and @_isEmptyTile(currentPosition - 1)
+      @_swapTile currentPosition, currentPosition - 1
       return false
 
-    if currentPosition + tileCount <= totalTileCount and isEmptyTile(currentPosition + tileCount)
-      swapTile currentPosition, currentPosition + tileCount
+    if currentPosition + tileCount <= totalTileCount and @_isEmptyTile(currentPosition + tileCount)
+      @_swapTile currentPosition, currentPosition + tileCount
       return false
 
-    if currentPosition + tileCount > 0 and isEmptyTile(currentPosition - tileCount)
-      swapTile currentPosition, currentPosition - tileCount
+    if currentPosition + tileCount > 0 and @_isEmptyTile(currentPosition - tileCount)
+      @_swapTile currentPosition, currentPosition - tileCount
       return false
   ###*
   * タイルを初期化
@@ -58,22 +72,23 @@ class Puzzle
   init: ->
     @config.totalTileCount = Math.pow @config.tileCount, 2
     @_boardElement = $(@config.boardSelector)
-    @_boardElement.html ''
     @_position = []
     @_board = []
 
-    for i in @config.totalTileCount
-      tile = @_createTile i + 1
+    @_boardElement.html ''
+
+    for i in [0..@config.totalTileCount - 1]
+      $tile = @_createTile i + 1
       curPos = @_getPositionFromIndex i
       positionObj = @_getAbsolutePosition curPos.x, curPos.y
 
-      $(tile).css
+      $tile.css
         left: "#{positionObj.left}px"
         top: "#{positionObj.top}px"
       .data 'current-index', i + 1
       @_position.push positionObj
-      @_board[i] = tile
-      @_boardElement.append tile
+      @_board[i] = $tile
+      @_boardElement.append $tile
 
     @_answer = @_board.concat()
   ###*
@@ -87,12 +102,15 @@ class Puzzle
     @_boardElement.html ''
     console.log "ary: #{ary}"
 
-    for i in @config.totalTileCount
+    for i in [0..@config.totalTileCount - 1]
       tempAry[i] = @_board[ary[i]]
-      $(tempAry[i]).css
+      tempAry[i].css
         left: "#{@_position[i].left}px"
         top: "#{@_position[i].top}px"
       .data 'current-index', i + 1
+      tempAry[i].click (e) =>
+        e.preventDefault()
+        @_onTileClick(e.target)
       @_boardElement.append tempAry[i]
 
     @_board = tempAry
@@ -107,7 +125,7 @@ class Puzzle
   _getSerialArray: (count) ->
     resultAry = []
 
-    for i in count
+    for i in [0..count - 1]
       resultAry.push i
 
     return resultAry

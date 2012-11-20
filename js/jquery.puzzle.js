@@ -26,17 +26,39 @@ Puzzle = (function() {
   Puzzle.prototype._createTile = function(count) {
     var $tile,
       _this = this;
-    $tile = $('</div>');
+    $tile = $('<div/>');
     $tile.addClass('tile').data('tile-count', count);
     if (count === this.config.totalTileCount) {
       $tile.addClass('empty');
     } else {
-      $tile.text(count).click(function(e) {
+      $tile.text(count);
+      $tile.click(function(e) {
         e.preventDefault();
-        return _this._onTileClick(_this);
+        return _this._onTileClick($tile);
       });
     }
-    return tile;
+    return $tile;
+  };
+
+  /**
+  * タイルのx, yから実際の座標(px)を取得
+  * @param x
+  * @param y
+  * @return {Object}
+  * @private
+  */
+
+
+  Puzzle.prototype._getAbsolutePosition = function(x, y) {
+    var margin, tileSize;
+    tileSize = this.config.tileSize;
+    margin = this.config.margin;
+    return {
+      x: x,
+      y: y,
+      left: x * tileSize + margin * (x + 1),
+      top: y * tileSize + margin * (y + 1)
+    };
   };
 
   /**
@@ -49,26 +71,24 @@ Puzzle = (function() {
 
 
   Puzzle.prototype._onTileClick = function(tileEl) {
-    var currentPosition, isEmptyTile, swapTile, tileCount, totalTileCount;
-    currentPosition = +$(tileEl).data('current-index');
+    var currentPosition, tileCount, totalTileCount;
+    currentPosition = $(tileEl).data('current-index');
     totalTileCount = this.config.totalTileCount;
     tileCount = this.config.tileCount;
-    isEmptyTile = this._isEmptyTile;
-    swapTile = this._swapTile;
-    if ((currentPosition + 1) <= totalTileCount && isEmptyTile(currentPosition + 1)) {
-      swapTile(currentPosition, currentPosition + 1);
+    if ((currentPosition + 1) <= totalTileCount && this._isEmptyTile(currentPosition + 1)) {
+      this._swapTile(currentPosition, currentPosition + 1);
       return false;
     }
-    if (currentPosition - 1 > 0 && isEmptyTile(currentPosition - 1)) {
-      swapTile(currentPosition, currentPosition - 1);
+    if (currentPosition - 1 > 0 && this._isEmptyTile(currentPosition - 1)) {
+      this._swapTile(currentPosition, currentPosition - 1);
       return false;
     }
-    if (currentPosition + tileCount <= totalTileCount && isEmptyTile(currentPosition + tileCount)) {
-      swapTile(currentPosition, currentPosition + tileCount);
+    if (currentPosition + tileCount <= totalTileCount && this._isEmptyTile(currentPosition + tileCount)) {
+      this._swapTile(currentPosition, currentPosition + tileCount);
       return false;
     }
-    if (currentPosition + tileCount > 0 && isEmptyTile(currentPosition - tileCount)) {
-      swapTile(currentPosition, currentPosition - tileCount);
+    if (currentPosition + tileCount > 0 && this._isEmptyTile(currentPosition - tileCount)) {
+      this._swapTile(currentPosition, currentPosition - tileCount);
       return false;
     }
   };
@@ -79,25 +99,23 @@ Puzzle = (function() {
 
 
   Puzzle.prototype.init = function() {
-    var curPos, i, positionObj, tile, _i, _len, _ref;
+    var $tile, curPos, i, positionObj, _i, _ref;
     this.config.totalTileCount = Math.pow(this.config.tileCount, 2);
     this._boardElement = $(this.config.boardSelector);
-    this._boardElement.html('');
     this._position = [];
     this._board = [];
-    _ref = this.config.totalTileCount;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      i = _ref[_i];
-      tile = this._createTile(i + 1);
+    this._boardElement.html('');
+    for (i = _i = 0, _ref = this.config.totalTileCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      $tile = this._createTile(i + 1);
       curPos = this._getPositionFromIndex(i);
       positionObj = this._getAbsolutePosition(curPos.x, curPos.y);
-      $(tile).css({
+      $tile.css({
         left: "" + positionObj.left + "px",
         top: "" + positionObj.top + "px"
       }).data('current-index', i + 1);
       this._position.push(positionObj);
-      this._board[i] = tile;
-      this._boardElement.append(tile);
+      this._board[i] = $tile;
+      this._boardElement.append($tile);
     }
     return this._answer = this._board.concat();
   };
@@ -109,19 +127,22 @@ Puzzle = (function() {
 
 
   Puzzle.prototype.randomize = function() {
-    var ary, i, tempAry, _i, _len, _ref;
+    var ary, i, tempAry, _i, _ref,
+      _this = this;
     ary = this._getShuffledArray(this._getSerialArray(this.config.totalTileCount));
     tempAry = [];
     this._boardElement.html('');
     console.log("ary: " + ary);
-    _ref = this.config.totalTileCount;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      i = _ref[_i];
+    for (i = _i = 0, _ref = this.config.totalTileCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
       tempAry[i] = this._board[ary[i]];
-      $(tempAry[i]).css({
+      tempAry[i].css({
         left: "" + this._position[i].left + "px",
         top: "" + this._position[i].top + "px"
       }).data('current-index', i + 1);
+      tempAry[i].click(function(e) {
+        e.preventDefault();
+        return _this._onTileClick(e.target);
+      });
       this._boardElement.append(tempAry[i]);
     }
     this._board = tempAry;
@@ -137,10 +158,9 @@ Puzzle = (function() {
 
 
   Puzzle.prototype._getSerialArray = function(count) {
-    var i, resultAry, _i, _len;
+    var i, resultAry, _i, _ref;
     resultAry = [];
-    for (_i = 0, _len = count.length; _i < _len; _i++) {
-      i = count[_i];
+    for (i = _i = 0, _ref = count - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
       resultAry.push(i);
     }
     return resultAry;
