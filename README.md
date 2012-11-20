@@ -1,6 +1,11 @@
 js15puzzle
 ==========
 
+## ソースコードダウンロード
+
+- Pure JavaScriptのバージョンは[こちら](https://github.com/Layzie/js15puzzle/archive/pure_js.zip)
+- jQuery 使用のバージョンは[こちら](https://github.com/Layzie/js15puzzle/archive/jquery_ver.zip)
+
 ## 推奨エディタ
 
 Macで作業をする際に、おすすめのエディタです。
@@ -57,7 +62,4 @@ Macで作業をする際に、おすすめのエディタです。
 
 > 日本語。バージョンは1つ前のものになるので、注意
 
-## jQuery使用の場合
-
-[こちら](http://code.jquery.com/jquery-1.8.3.min.js)より最新版をダウンロードしてください。
 
