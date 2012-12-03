@@ -13,9 +13,18 @@ document.addEventListener('DOMContentLoaded', function(){
 
 });
 
+/**
+ *
+ * @constructor
+ */
 var Puzzle = function(){
 	this.init();
 };
+
+/**
+ * 設定
+ * @type {Object}
+ */
 Puzzle.prototype.config = {
 	tileSize: 75,               //タイルの幅・高さ
 	tileCount: 4,               //縦・横のタイル数
@@ -29,6 +38,12 @@ Puzzle.prototype._position = [];
 
 Puzzle.prototype._board = [];
 
+/**
+ * タイル作成
+ * @param count
+ * @return {HTMLElement}
+ * @private
+ */
 Puzzle.prototype._createTile = function(count){
 	var that = this,
 		tile = document.createElement('div');
@@ -64,17 +79,28 @@ Puzzle.prototype._getAbsolutePosition = function(x, y){
 	};
 };
 
+/**
+ * タイルクリック時のイベントハンドラ
+ * @param tileEl
+ * @return {Boolean}
+ * @private
+ */
 Puzzle.prototype._onTileClick = function(tileEl){
 	var that = this,
 		currentPosition = +tileEl.getAttribute('data-current-index');
 
 	//現在の位置から上下左右に空タイルがあるか確認、あったらリプレース
-	if ((currentPosition + 1) <= that.config.totalTileCount && that._isEmptyTile(currentPosition + 1)) {
+	if ((currentPosition + 1) <= that.config.totalTileCount
+		&& that._isSameRow(currentPosition, currentPosition + 1)
+		&& that._isEmptyTile(currentPosition + 1)) {
+
 		that._swapTile(currentPosition, currentPosition + 1);
 		return false;
 	}
 
-	if ((currentPosition - 1) > 0  && that._isEmptyTile(currentPosition - 1)) {
+	if ((currentPosition - 1) > 0
+		&& that._isSameRow(currentPosition, currentPosition - 1)
+		&& that._isEmptyTile(currentPosition - 1)) {
 
 		that._swapTile(currentPosition, currentPosition - 1);
 		return false;
@@ -198,11 +224,41 @@ Puzzle.prototype._getIndexFromPosition = function(position){
 	return this.config.tileCount * position.y + (position.x + 1);
 };
 
+/**
+ * 空のタイルか判別
+ * @param index
+ * @return {Boolean}
+ * @private
+ */
 Puzzle.prototype._isEmptyTile = function(index){
 	var tile = this._board[index - 1];
 	return tile.classList.contains('empty');
 };
 
+/**
+ * 同じ行だったらtrue
+ * @param currentIndex
+ * @param targetIndex
+ * @private
+ */
+Puzzle.prototype._isSameRow = function(currentIndex, targetIndex) {
+	if (currentIndex % this.config.tileCount === 0 && currentIndex + 1 === targetIndex) {
+		return false;
+	}
+
+	if (targetIndex % this.config.tileCount === 0 && currentIndex - 1 === targetIndex) {
+		return false;
+	}
+
+	return true;
+};
+
+/**
+ * タイルの位置を交換
+ * @param indexA
+ * @param indexB
+ * @private
+ */
 Puzzle.prototype._swapTile = function(indexA, indexB){
 	var tempIndexA = indexA - 1,
 		tempIndexB = indexB - 1,
